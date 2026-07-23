@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <base target="_top">
+  <meta charset="utf-8">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #F5F4F0;
+      --surface: #FFFFFF;
+      --ink: #1E2321;
+      --ink-soft: #5B6460;
+      --line: #E2E0D8;
+      --accent: #2F5D50;
+      --accent-soft: #E4EEE9;
+      --warn: #B5502E;
+      --radius: 10px;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: 'Inter', Arial, sans-serif;
+      -webkit-font-smoothing: antialiased;
+    }
+    header {
+      padding: 28px 32px 20px;
+      border-bottom: 1px solid var(--line);
+      background: var(--surface);
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    header h1 {
+      font-family: 'Sora', sans-serif;
+      font-size: 22px;
+      font-weight: 700;
+      margin: 0;
+      letter-spacing: -0.01em;
+    }
+    header .meta {
+      font-size: 12.5px;
+      color: var(--ink-soft);
+      font-family: 'IBM Plex Mono', monospace;
+    }
+    main {
+      max-width: 780px;
+      margin: 0 auto;
+      padding: 28px 24px 60px;
+    }
+    .search-wrap {
+      position: relative;
+      margin-bottom: 8px;
+    }
+    #searchBox {
+      width: 100%;
+      padding: 16px 52px 16px 18px;
+      font-size: 16px;
+      font-family: 'Inter', sans-serif;
+      border: 1.5px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--surface);
+      color: var(--ink);
+      outline: none;
+      transition: border-color .15s ease;
+    }
+    #searchBox:focus { border-color: var(--accent); }
+    .search-icon {
+      position: absolute;
+      right: 18px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--ink-soft);
+      font-size: 16px;
+      pointer-events: none;
+    }
+    #status {
+      font-size: 12.5px;
+      color: var(--ink-soft);
+      font-family: 'IBM Plex Mono', monospace;
+      margin: 10px 2px 22px;
+      min-height: 16px;
+    }
+    #status.searching::after {
+      content: '';
+      display: inline-block;
+      width: 6px; height: 6px;
+      margin-left: 6px;
+      border-radius: 50%;
+      background: var(--accent);
+      animation: pulse 1s infinite ease-in-out;
+    }
+    @keyframes pulse { 0%,100% { opacity: .25; } 50% { opacity: 1; } }
+
+    .result-card {
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-left: 4px solid var(--accent);
+      border-radius: var(--radius);
+      padding: 16px 18px;
+      margin-bottom: 14px;
+    }
+    .result-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+      gap: 10px;
+    }
+    .result-source {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 11.5px;
+      color: var(--accent);
+      background: var(--accent-soft);
+      padding: 3px 8px;
+      border-radius: 6px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .result-link {
+      font-size: 12px;
+      color: var(--ink-soft);
+      text-decoration: none;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+    .result-link:hover { color: var(--accent); }
+    .field-row {
+      display: grid;
+      grid-template-columns: 34% 1fr;
+      gap: 10px;
+      align-items: center;
+      padding: 5px 0;
+      border-bottom: 1px solid #F0EFEA;
+    }
+    .field-row:last-of-type { border-bottom: none; }
+    .field-label {
+      font-size: 12px;
+      color: var(--ink-soft);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .field-value {
+      width: 100%;
+      border: 1px solid transparent;
+      border-radius: 6px;
+      padding: 6px 8px;
+      font-size: 13.5px;
+      font-family: 'IBM Plex Mono', monospace;
+      background: #FAFAF7;
+      color: var(--ink);
+    }
+    .field-value:focus {
+      border-color: var(--accent);
+      background: white;
+      outline: none;
+    }
+    .card-footer {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 10px;
+      margin-top: 12px;
+    }
+    .saved-msg {
+      font-size: 12px;
+      color: var(--accent);
+      font-family: 'IBM Plex Mono', monospace;
+    }
+    .save-btn {
+      padding: 7px 16px;
+      background: var(--accent);
+      color: white;
+      border: none;
+      border-radius: 7px;
+      font-size: 12.5px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: opacity .15s ease;
+    }
+    .save-btn:hover { opacity: .88; }
+    .save-btn:disabled { opacity: .5; cursor: default; }
+
+    .empty-state {
+      text-align: center;
+      padding: 60px 20px;
+      color: var(--ink-soft);
+    }
+    .empty-state .big {
+      font-family: 'Sora', sans-serif;
+      font-size: 15px;
+      color: var(--ink);
+      margin-bottom: 6px;
+    }
+    .empty-state .small {
+      font-size: 12.5px;
+      line-height: 1.6;
+    }
+    code {
+      background: var(--accent-soft);
+      color: var(--accent);
+      padding: 1px 5px;
+      border-radius: 4px;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 11.5px;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Panel Kontrol</h1>
+    <div class="meta" id="headerMeta">memuat sumber sheet...</div>
+  </header>
+
+  <main>
+    <div class="search-wrap">
+      <input type="text" id="searchBox" placeholder="Cari data di semua sheet..." autofocus />
+      <span class="search-icon">⏎</span>
+    </div>
+    <div id="status"></div>
+    <div id="results">
+      <div class="empty-state">
+        <div class="big">Belum ada pencarian</div>
+        <div class="small">Ketik kata kunci di atas lalu tekan Enter.<br>
+        Hasil dari semua sheet yang terdaftar di <code>Daftar_Sheet</code> akan muncul di sini.</div>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    google.script.run.withSuccessHandler(function(summary) {
+      const meta = document.getElementById('headerMeta');
+      meta.textContent = summary.total + ' sheet tersambung';
+    }).getSourceSummary();
+
+    document.getElementById('searchBox').addEventListener('keyup', function(e) {
+      if (e.key === 'Enter') doSearch();
+    });
+
+    function doSearch() {
+      const keyword = document.getElementById('searchBox').value;
+      const status = document.getElementById('status');
+      const results = document.getElementById('results');
+      if (!keyword.trim()) return;
+
+      status.textContent = 'Mencari di semua sheet';
+      status.className = 'searching';
+      results.innerHTML = '';
+
+      google.script.run
+        .withSuccessHandler(function(data) {
+          status.textContent = data.length + ' hasil ditemukan untuk "' + keyword + '"';
+          status.className = '';
+          renderResults(data);
+        })
+        .withFailureHandler(function(err) {
+          status.textContent = 'Error: ' + err.message;
+          status.className = '';
+        })
+        .searchAllSheets(keyword);
+    }
+
+    function renderResults(data) {
+      const results = document.getElementById('results');
+      results.innerHTML = '';
+
+      if (data.length === 0) {
+        results.innerHTML = '<div class="empty-state"><div class="big">Tidak ada hasil</div>' +
+          '<div class="small">Coba kata kunci lain, atau cek tab <code>Daftar_Sheet</code> apakah sheet sudah aktif.</div></div>';
+        return;
+      }
+
+      data.forEach(function(item) {
+        const card = document.createElement('div');
+        card.className = 'result-card';
+
+        const head = document.createElement('div');
+        head.className = 'result-head';
+        head.innerHTML =
+          '<span class="result-source">' + item.sourceLabel + ' · ' + item.sheetName + ' · baris ' + item.rowNumber + '</span>' +
+          '<a class="result-link" href="' + item.url + '" target="_blank">Buka di Sheets ↗</a>';
+        card.appendChild(head);
+
+        item.headers.forEach(function(header, colIdx) {
+          const row = document.createElement('div');
+          row.className = 'field-row';
+
+          const label = document.createElement('div');
+          label.className = 'field-label';
+          label.textContent = header || ('Kolom ' + (colIdx + 1));
+          row.appendChild(label);
+
+          const input = document.createElement('input');
+          input.className = 'field-value';
+          input.value = item.rowData[colIdx] || '';
+          input.dataset.spreadsheetId = item.spreadsheetId;
+          input.dataset.sheetName = item.sheetName;
+          input.dataset.rowNumber = item.rowNumber;
+          input.dataset.colIndex = colIdx;
+          row.appendChild(input);
+
+          card.appendChild(row);
+        });
+
+        const footer = document.createElement('div');
+        footer.className = 'card-footer';
+        const saveBtn = document.createElement('button');
+        saveBtn.className = 'save-btn';
+        saveBtn.textContent = 'Simpan Perubahan';
+        saveBtn.onclick = function() { saveRow(card, footer, saveBtn); };
+        footer.appendChild(saveBtn);
+        card.appendChild(footer);
+
+        results.appendChild(card);
+      });
+    }
+
+    function saveRow(card, footer, btn) {
+      const inputs = card.querySelectorAll('.field-value');
+      let pending = inputs.length;
+      let hadError = false;
+      btn.textContent = 'Menyimpan...';
+      btn.disabled = true;
+
+      inputs.forEach(function(input) {
+        google.script.run
+          .withSuccessHandler(function() {
+            pending--;
+            if (pending === 0) finish();
+          })
+          .withFailureHandler(function(err) {
+            hadError = true;
+            pending--;
+            if (pending === 0) finish();
+          })
+          .updateCell(
+            input.dataset.spreadsheetId,
+            input.dataset.sheetName,
+            parseInt(input.dataset.rowNumber),
+            parseInt(input.dataset.colIndex),
+            input.value
+          );
+      });
+
+      function finish() {
+        btn.textContent = 'Simpan Perubahan';
+        btn.disabled = false;
+        const msg = document.createElement('span');
+        msg.className = 'saved-msg';
+        msg.textContent = hadError ? '⚠ sebagian gagal tersimpan' : '✓ tersimpan';
+        footer.insertBefore(msg, btn);
+        setTimeout(function() { msg.remove(); }, 2500);
+      }
+    }
+  </script>
+</body>
+</html>
