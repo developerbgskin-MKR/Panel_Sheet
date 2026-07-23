@@ -92,9 +92,27 @@ clasp deploy    # buat versi deployment baru (URL tetap sama)
 
 - **Jangan commit `.clasp.json`** — file ini berisi Script ID unik milikmu.
   Sudah dimasukkan ke `.gitignore` secara default.
-- **Jangan taruh URL Web App hasil deploy di README/commit publik** kalau
-  "Who has access" di-set selain "Only myself" — siapa pun yang tahu URL
-  itu berpotensi bisa membuka panel edit datamu.
+- **Jangan taruh URL Web App hasil deploy di README/commit publik.** Repo ini
+  publik, jadi siapa pun bisa lihat isinya — kalau URL Web App ikut ke-commit,
+  siapa pun yang menemukan URL itu berpotensi membuka panel edit datamu.
+- Simpan URL deploy kamu secara lokal saja, dengan salah satu cara ini:
+
+  **Cara cepat (pakai script yang sudah disediakan):**
+  ```bash
+  bash simpan-url.sh
+  # akan menanyakan URL Web App kamu, lalu menyimpannya ke .env (sudah di-gitignore)
+  ```
+
+  **Cara manual:**
+  ```bash
+  cp .env.example .env
+  # lalu edit .env, ganti PANEL_URL dengan URL Web App kamu yang sebenarnya
+  ```
+
+  File `.env` **tidak akan ikut ke-push** ke GitHub karena sudah ada di
+  `.gitignore`. Yang boleh di-commit hanya `.env.example` (isinya cuma
+  placeholder, bukan URL asli).
+
 - Daftar link spreadsheet (`Daftar_Sheet`) hidup di dalam Google Sheet,
   bukan di repo ini — tetap begitu, jangan pindahkan ke kode/README.
 
