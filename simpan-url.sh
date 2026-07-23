@@ -8,7 +8,7 @@ set -e
 ENV_FILE=".env"
 
 echo "=== Simpan URL Panel Kontrol ==="
-read -rp "Tempel URL Web App hasil deploy (https://script.google.com/macros/s/.../exec): " URL
+read -rp "https://script.google.com/macros/s/AKfycbwb-KCFYUziuwUNo0MgMk2JKbTDv2TeGpuOcrfjgm_bzgmLa83oKJCq9d7Jz73lxDvS/exec" URL
 
 if [[ -z "$URL" ]]; then
   echo "URL kosong, dibatalkan."
